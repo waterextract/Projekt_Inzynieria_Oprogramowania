@@ -1,0 +1,68 @@
+{
+  "project_info": {
+    "project_number": "135933141591",
+    "project_id": "aplikacja-d34c5",
+    "storage_bucket": "aplikacja-d34c5.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:135933141591:android:05e35a4917bef4f5f6b912",
+        "android_client_info": {
+          "package_name": "com.JuliaIJustyna.apka"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "135933141591-6i26rds9u3b2vq7vbu887kclv6nh14v1.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD3YzCeR6p4KURrqkr1nUXmtZqO8Vy8k_M"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "135933141591-6i26rds9u3b2vq7vbu887kclv6nh14v1.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:135933141591:android:6b2d3c2ae026f90bf6b912",
+        "android_client_info": {
+          "package_name": "com.juliaijustyna.apka"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "135933141591-6i26rds9u3b2vq7vbu887kclv6nh14v1.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD3YzCeR6p4KURrqkr1nUXmtZqO8Vy8k_M"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "135933141591-6i26rds9u3b2vq7vbu887kclv6nh14v1.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
