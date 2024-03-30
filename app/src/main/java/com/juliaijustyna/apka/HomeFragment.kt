@@ -34,9 +34,9 @@ class HomeFragment : Fragment() {
     ): View? {
         // Inflate the layout for this fragment
         val view = inflater.inflate(R.layout.fragment_home, container, false)
-        val btn = view.findViewById<Button>(R.id.addBtn)
+        val btn = view.findViewById<Button>(R.id.playBtn)
         btn.setOnClickListener{
-            val intent = Intent(activity, AddPet::class.java)
+            val intent = Intent(activity, MakeRoom::class.java)
             startActivity(intent)
         }
         return view

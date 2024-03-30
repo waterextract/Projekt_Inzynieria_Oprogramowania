@@ -18,7 +18,8 @@
         android:src="@drawable/baseline_arrow_back_24"
         android:background="@android:color/transparent"
         android:layout_marginStart="10dp"
-        android:layout_centerVertical = "true" />
+        android:layout_centerVertical = "true"
+        android:tint="@color/white" />
 
     <TextView
         android:id="@+id/ToolBarTitle"
@@ -29,17 +30,20 @@
         android:textColor="@color/white"
         android:textStyle="bold" />
 
+        <ImageButton
+            android:id="@+id/profile_edit_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="380dp"
+            android:layout_marginTop="15dp"
+            android:background="@android:color/transparent"
+            android:src="@drawable/baseline_mode_edit_24"
+            android:tint="@color/white" />
 
-    <ImageButton
-        android:id="@+id/profile_edit_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:background="@android:color/transparent"
-        android:src="@drawable/baseline_mode_edit_24"
-        app:cornerRadius="20dp" />
+
+    </RelativeLayout>
 
 </RelativeLayout>
-    </RelativeLayout>
 
 
 
