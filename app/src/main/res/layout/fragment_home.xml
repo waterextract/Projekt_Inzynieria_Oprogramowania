@@ -18,27 +18,35 @@
 
     <LinearLayout
         android:id="@+id/bottomLl"
-        android:layout_width="match_parent"
+        android:layout_width="395dp"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
         android:layout_alignParentBottom="true"
         android:layout_marginStart="10dp"
-        android:layout_marginEnd="10dp"
-        android:layout_marginBottom="10dp">
+        android:layout_marginBottom="10dp"
+        android:orientation="horizontal">
 
 
         <Button
             android:id="@+id/playBtn"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_width="250dp"
+            android:layout_height="70dp"
+            android:layout_marginEnd="10dp"
             android:layout_weight="1"
             android:minHeight="50dp"
-            android:text="PLAY"
-            android:layout_marginEnd="10dp"
+            android:text="MAKE ROOM"
             android:textAllCaps="false"
-            android:textColor="@color/white"/>
+            android:textColor="@color/white" />
 
-
+        <Button
+            android:id="@+id/joinBtn"
+            android:layout_width="250dp"
+            android:layout_height="70dp"
+            android:layout_marginEnd="10dp"
+            android:layout_weight="1"
+            android:minHeight="50dp"
+            android:text="JOIN ROOM"
+            android:textAllCaps="false"
+            android:textColor="@color/white" />
 
 
     </LinearLayout>
