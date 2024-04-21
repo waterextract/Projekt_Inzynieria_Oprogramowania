@@ -12,9 +12,6 @@
         android:theme="@style/Theme.Apka"
         tools:targetApi="34">
         <activity
-            android:name="com.juliaijustyna.apka.JoinActivity"
-            android:exported="false" />
-        <activity
             android:name=".JoinRoom"
             android:exported="false" />
         <activity
