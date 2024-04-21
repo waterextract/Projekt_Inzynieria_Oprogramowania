@@ -10,7 +10,10 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/Theme.Apka"
-        tools:targetApi="31">
+        tools:targetApi="34">
+        <activity
+            android:name="com.juliaijustyna.apka.JoinActivity"
+            android:exported="false" />
         <activity
             android:name=".MakeRoom"
             android:exported="false" />

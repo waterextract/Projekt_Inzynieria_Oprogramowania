@@ -25,6 +25,7 @@ class SignupActivity : AppCompatActivity() {
         binding.signupButton.setOnClickListener{
 
             email = binding.signupEmail.text.toString()
+            val username = binding.signupUsername.text.toString()
             val password = binding.signupPassword.text.toString()
             val confirmPassword = binding.signupConfirm.text.toString()
             if (email.isNotEmpty() && password.isNotEmpty() && confirmPassword.isNotEmpty()){
@@ -59,10 +60,12 @@ class SignupActivity : AppCompatActivity() {
 
         val uid=firebaseAuth.uid
 
+        val username = binding.signupUsername.text.toString() // Pobierz nazwę użytkownika
+
         val hashMap : HashMap<String, Any?> = HashMap()
         hashMap["uid"] = uid
         hashMap["email"] = email
-        hashMap["name"] = email
+        hashMap["name"] = username
         hashMap["profileImage"] = ""
         hashMap["timestamp"] = timestamp
 

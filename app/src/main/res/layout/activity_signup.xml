@@ -36,6 +36,17 @@
                 android:layout_width="300dp"
                 android:layout_height="60dp"
                 android:layout_gravity="center"
+                android:id="@+id/signup_username"
+                android:layout_marginTop="30dp"
+                android:background="@drawable/lavender_border"
+                android:padding="8dp"
+                android:hint="Username"/>
+
+
+            <EditText
+                android:layout_width="300dp"
+                android:layout_height="60dp"
+                android:layout_gravity="center"
                 android:id="@+id/signup_password"
                 android:layout_marginTop="20dp"
                 android:background="@drawable/lavender_border"
