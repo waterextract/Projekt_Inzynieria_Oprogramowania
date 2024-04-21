@@ -15,6 +15,9 @@
             android:name="com.juliaijustyna.apka.JoinActivity"
             android:exported="false" />
         <activity
+            android:name=".JoinRoom"
+            android:exported="false" />
+        <activity
             android:name=".MakeRoom"
             android:exported="false" />
         <activity
