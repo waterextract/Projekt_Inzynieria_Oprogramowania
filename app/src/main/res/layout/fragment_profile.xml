@@ -5,11 +5,14 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".ProfileFragment">
-    
+
+
+
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="?actionBarSize"
         android:background="@color/lavender">
+
 
     <ImageButton
         android:id="@+id/back_button"
@@ -19,7 +22,8 @@
         android:background="@android:color/transparent"
         android:layout_marginStart="10dp"
         android:layout_centerVertical = "true"
-        android:tint="@color/white" />
+        android:tint="@color/white"
+        tools:ignore="UseAppTint" />
 
     <TextView
         android:id="@+id/ToolBarTitle"
@@ -30,6 +34,7 @@
         android:textColor="@color/white"
         android:textStyle="bold" />
 
+
         <ImageButton
             android:id="@+id/profile_edit_button"
             android:layout_width="wrap_content"
@@ -38,12 +43,50 @@
             android:layout_marginTop="15dp"
             android:background="@android:color/transparent"
             android:src="@drawable/baseline_mode_edit_24"
-            android:tint="@color/white" />
+            android:tint="@color/white"
+            tools:ignore="UseAppTint" />
+
 
 
     </RelativeLayout>
 
+    <ImageView
+        android:id="@+id/imageViewProfile"
+        android:layout_width="120dp"
+        android:layout_height="120dp"
+        android:layout_centerVertical="true"
+        android:src="@drawable/baseline_email_24"
+        android:layout_centerHorizontal="true"/>
+
+    <LinearLayout
+        android:id="@+id/bottomLl"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_alignBottom="@id/imageViewProfile"
+        android:layout_centerInParent="true"
+        android:orientation="horizontal">
+    <TextView
+        android:id="@+id/Username"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Username:"
+        android:textColor="@color/grey"
+        android:textStyle="bold" />
+    <TextView
+        android:id="@+id/textViewUsername"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="10dp"
+        android:text="Username"
+        android:textColor="@color/grey"
+        android:textStyle="bold" />
+    </LinearLayout>
+
+
+
 </RelativeLayout>
+
 
 
 
