@@ -50,7 +50,7 @@ class MakeRoom : AppCompatActivity() {
                 .addOnSuccessListener {
                     Toast.makeText(this, "Pokój został utworzony pomyślnie", Toast.LENGTH_SHORT).show()
                     // Przejdź do kolejnej aktywności (lobby gry) po pomyślnym utworzeniu pokoju
-                    goToLobbyActivity()
+                    goToLobbyActivity(roomId) // Przekazanie roomId do kolejnej aktywności
                 }
                 .addOnFailureListener {
                     Toast.makeText(this, "Błąd podczas tworzenia pokoju: ${it.message}", Toast.LENGTH_SHORT).show()
@@ -58,8 +58,9 @@ class MakeRoom : AppCompatActivity() {
         }
     }
 
-    private fun goToLobbyActivity() {
-        val intent = Intent(this, MainActivity::class.java)
+    private fun goToLobbyActivity(roomId: String) {
+        val intent = Intent(this, LobbyActivity::class.java)
+        intent.putExtra("roomId", roomId) // Dodaj roomId do intencji
         startActivity(intent)
         finish() // Zakończ bieżącą aktywność, aby nie można jej było cofnąć
     }

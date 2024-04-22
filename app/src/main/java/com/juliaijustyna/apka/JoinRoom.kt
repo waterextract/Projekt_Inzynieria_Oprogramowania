@@ -7,7 +7,7 @@ import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.*
 
 class JoinRoom : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -39,20 +39,34 @@ class JoinRoom : AppCompatActivity() {
             val playerId = currentUser.uid
 
             val roomRef = FirebaseDatabase.getInstance().getReference("rooms").child(roomId)
-            roomRef.child("players").child(playerId).setValue(true)
-                .addOnSuccessListener {
-                    Toast.makeText(this, "Pomyślnie dołączono do pokoju", Toast.LENGTH_SHORT).show()
-                    // Przejdź do kolejnej aktywności (lobby gry) po dołączeniu do pokoju
-                    goToLobbyActivity()
+
+            roomRef.addListenerForSingleValueEvent(object : ValueEventListener {
+                override fun onDataChange(dataSnapshot: DataSnapshot) {
+                    if (dataSnapshot.exists()) {
+                        roomRef.child("players").child(playerId).setValue(true)
+                            .addOnSuccessListener {
+                                Toast.makeText(this@JoinRoom, "Pomyślnie dołączono do pokoju", Toast.LENGTH_SHORT).show()
+                                // Przejdź do kolejnej aktywności (lobby gry) po dołączeniu do pokoju
+                                goToLobbyActivity(roomId) // Przekazanie roomId do kolejnej aktywności
+                            }
+                            .addOnFailureListener {
+                                Toast.makeText(this@JoinRoom, "Błąd podczas dołączania do pokoju: ${it.message}", Toast.LENGTH_SHORT).show()
+                            }
+                    } else {
+                        Toast.makeText(this@JoinRoom, "Podany identyfikator pokoju jest nieprawidłowy", Toast.LENGTH_SHORT).show()
+                    }
                 }
-                .addOnFailureListener {
-                    Toast.makeText(this, "Błąd podczas dołączania do pokoju: ${it.message}", Toast.LENGTH_SHORT).show()
+
+                override fun onCancelled(databaseError: DatabaseError) {
+                    Toast.makeText(this@JoinRoom, "Błąd: ${databaseError.message}", Toast.LENGTH_SHORT).show()
                 }
+            })
         }
     }
 
-    private fun goToLobbyActivity() {
-        val intent = Intent(this, MainActivity::class.java)
+    private fun goToLobbyActivity(roomId: String) {
+        val intent = Intent(this, LobbyActivity::class.java)
+        intent.putExtra("roomId", roomId) // Dodaj roomId do intencji
         startActivity(intent)
         finish() // Zakończ bieżącą aktywność, aby nie można jej było cofnąć
     }
