@@ -1,10 +1,12 @@
 package com.juliaijustyna.apka
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageButton
 import android.widget.TextView
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
@@ -63,8 +65,18 @@ class ProfileFragment : Fragment() {
         // Inicjalizacja textViewUsername
         textViewUsername = view.findViewById(R.id.textViewUsername)
 
+        val buttonBack: ImageButton = view.findViewById(R.id.back_button)
+
         // Załaduj nazwę użytkownika
         loadUsername()
+
+        buttonBack.setOnClickListener {
+            val homeFragment = HomeFragment()
+            val transaction = requireActivity().supportFragmentManager.beginTransaction()
+            transaction.replace(R.id.fragment_container, homeFragment)
+            transaction.addToBackStack(null)
+            transaction.commit()
+        }
 
         return view
     }
