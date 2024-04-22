@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:id="@+id/roomIdTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="Room ID:"
+        android:textSize="18sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/roomIdValueTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/roomIdTextView"
+        android:layout_marginTop="8dp"
+        android:text=""
+        android:textSize="16sp" />
+
+    <TextView
+        android:id="@+id/playersTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/roomIdValueTextView"
+        android:layout_marginTop="16dp"
+        android:text="Players:"
+        android:textSize="18sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/playersListTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/playersTextView"
+        android:layout_marginTop="8dp"
+        android:text=""
+        android:textSize="16sp" />
+
+    <Button
+        android:id="@+id/leaveButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/playersListTextView"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="24dp"
+        android:text="Leave Room" />
+
+</RelativeLayout>

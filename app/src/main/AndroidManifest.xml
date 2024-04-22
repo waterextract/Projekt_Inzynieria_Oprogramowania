@@ -12,6 +12,9 @@
         android:theme="@style/Theme.Apka"
         tools:targetApi="34">
         <activity
+            android:name=".LobbyActivity"
+            android:exported="false" />
+        <activity
             android:name=".JoinRoom"
             android:exported="false" />
         <activity
