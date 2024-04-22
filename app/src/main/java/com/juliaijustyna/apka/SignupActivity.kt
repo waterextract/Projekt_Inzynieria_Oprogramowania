@@ -90,7 +90,7 @@ class SignupActivity : AppCompatActivity() {
         hashMap["uid"] = uid
         hashMap["email"] = email
         hashMap["name"] = username
-        hashMap["profileImage"] = "\"android.resource://${packageName}/${R.drawable.profile_circle_svgrepo_com}\""
+        hashMap["profileImage"] = ""
         hashMap["timestamp"] = timestamp
 
         val ref = FirebaseDatabase.getInstance().getReference("Users")

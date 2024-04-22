@@ -15,7 +15,9 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.database.ValueEventListener
+import com.squareup.picasso.Picasso
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -32,6 +34,7 @@ class ProfileFragment : Fragment() {
     private lateinit var galleryLauncher: ActivityResultLauncher<String>
     private var currentUserUid: String? = null
     private var profileImageUri: Uri? = null
+    private var uid: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -50,12 +53,14 @@ class ProfileFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?,
     ): View? {
+        FirebaseAuth.getInstance().currentUser?.uid?.let { uid = it }
         val view = inflater.inflate(R.layout.fragment_profile, container, false)
         textViewUsername = view.findViewById(R.id.textViewUsername)
         profileImageView = view.findViewById(R.id.imageViewProfile)
         changeProfileImageButton = view.findViewById(R.id.profile_edit_button)
         changeProfileImageButton.setOnClickListener { changeProfileImageOnClick() }
         val buttonBack: ImageButton = view.findViewById(R.id.back_button)
+        loadProfileImage()
         loadUsername()
 
         buttonBack.setOnClickListener {
@@ -70,10 +75,25 @@ class ProfileFragment : Fragment() {
             transaction.commit()
         }
 
+
+
         return view
     }
 
+    private fun loadProfileImage() {
+        val storageRef = FirebaseStorage.getInstance().reference
+        val imageRef = storageRef.child("profile_images").child("$uid.jpg")
 
+        imageRef.downloadUrl.addOnSuccessListener { downloadUri ->
+            // Pobierz adres URL obrazu
+            val imageUrl = downloadUri.toString()
+
+
+             Picasso.get().load(imageUrl).into(profileImageView)
+        }.addOnFailureListener { exception ->
+            // Obsługa błędu podczas pobierania adresu URL obrazu
+        }
+    }
 
     private fun loadUsername() {
         val currentUser = FirebaseAuth.getInstance().currentUser
@@ -99,16 +119,29 @@ class ProfileFragment : Fragment() {
     }
 
     private fun updateProfileImage() {
-        currentUserUid?.let { uid ->
             profileImageUri?.let { uri ->
-                val ref = FirebaseDatabase.getInstance().getReference("Users").child(uid)
-                ref.child("profileImage").setValue(uri.toString())
-                    .addOnSuccessListener {
-                        // Aktualizuj ImageView z nowym obrazem profilowym
-                        profileImageView.setImageURI(uri)
+                val storageRef = FirebaseStorage.getInstance().reference
+                val imageRef = storageRef.child("profile_images").child("$uid.jpg")
+
+                imageRef.putFile(uri)
+                    .addOnSuccessListener { taskSnapshot ->
+                        imageRef.downloadUrl.addOnSuccessListener { downloadUri ->
+                            // Sprawdź, czy downloadUri nie jest nullem
+                            downloadUri?.let { uri ->
+                                // Zapisz URL obrazu w bazie danych Firebase
+                                val ref = FirebaseDatabase.getInstance().getReference("Users").child(uid!!)
+                                ref.child("profileImage").setValue(uri.toString())
+                                    .addOnSuccessListener {
+                                        // Sukces
+                                    }
+                                    .addOnFailureListener { exception ->
+                                        // Obsługa błędu podczas ustawiania wartości
+                                    }
+                            }
+                        }
                     }
+
             }
         }
     }
-}
 
