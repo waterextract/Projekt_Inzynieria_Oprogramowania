@@ -1,6 +1,5 @@
 package com.juliaijustyna.apka
 
-import android.content.Intent
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -8,6 +7,10 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
 import android.widget.TextView
+import androidx.activity.result.contract.ActivityResultContracts
+import android.net.Uri
+import android.widget.ImageView
+import androidx.activity.result.ActivityResultLauncher
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -16,8 +19,6 @@ import com.google.firebase.database.ValueEventListener
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
 
 /**
  * A simple [Fragment] subclass.
@@ -25,34 +26,23 @@ private const val ARG_PARAM2 = "param2"
  * create an instance of this fragment.
  */
 class ProfileFragment : Fragment() {
-    private var param1: String? = null
-    private var param2: String? = null
-    private lateinit var textViewUsername: TextView // Deklaracja textViewUsername
+    private lateinit var textViewUsername: TextView
+    private lateinit var changeProfileImageButton: ImageButton
+    private lateinit var profileImageView: ImageView
+    private lateinit var galleryLauncher: ActivityResultLauncher<String>
+    private var currentUserUid: String? = null
+    private var profileImageUri: Uri? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
-        }
-    }
 
-    private fun loadUsername() {
-        val uid = FirebaseAuth.getInstance().currentUser?.uid
-        val userRef = uid?.let { FirebaseDatabase.getInstance().getReference("Users").child(it) }
-
-        if (userRef != null) {
-            userRef.addListenerForSingleValueEvent(object : ValueEventListener {
-                override fun onDataChange(dataSnapshot: DataSnapshot) {
-                    if (dataSnapshot.exists()) {
-                        val username = dataSnapshot.child("name").value.toString()
-                        // Przypisanie pobranej nazwy użytkownika do textViewUsername
-                        textViewUsername.text = username
-                    }
-                }
-
-                override fun onCancelled(databaseError: DatabaseError) {}
-            })
+        // Inicjalizacja launcher'a do otwierania galerii
+        galleryLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
+            uri?.let {
+                profileImageUri = it
+                // Aktualizacja obrazu profilowego w bazie danych Firebase
+                updateProfileImage()
+            }
         }
     }
 
@@ -61,43 +51,64 @@ class ProfileFragment : Fragment() {
         savedInstanceState: Bundle?,
     ): View? {
         val view = inflater.inflate(R.layout.fragment_profile, container, false)
-
-        // Inicjalizacja textViewUsername
         textViewUsername = view.findViewById(R.id.textViewUsername)
-
+        profileImageView = view.findViewById(R.id.imageViewProfile)
+        changeProfileImageButton = view.findViewById(R.id.profile_edit_button)
+        changeProfileImageButton.setOnClickListener { changeProfileImageOnClick() }
         val buttonBack: ImageButton = view.findViewById(R.id.back_button)
-
-        // Załaduj nazwę użytkownika
         loadUsername()
 
         buttonBack.setOnClickListener {
             val homeFragment = HomeFragment()
+
             val transaction = requireActivity().supportFragmentManager.beginTransaction()
+
             transaction.replace(R.id.fragment_container, homeFragment)
+
             transaction.addToBackStack(null)
+
             transaction.commit()
         }
 
         return view
     }
 
-    companion object {
 
-        fun newInstance(param1: String, param2: String) =
-            ProfileFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
-                }
+
+    private fun loadUsername() {
+        val currentUser = FirebaseAuth.getInstance().currentUser
+        currentUser?.let {
+            currentUserUid = it.uid
+            FirebaseDatabase.getInstance().getReference("Users").child(it.uid)
+                .addListenerForSingleValueEvent(object : ValueEventListener {
+                    override fun onDataChange(dataSnapshot: DataSnapshot) {
+                        if (dataSnapshot.exists()) {
+                            val username = dataSnapshot.child("name").value.toString()
+                            textViewUsername.text = username
+                        }
+                    }
+
+                    override fun onCancelled(databaseError: DatabaseError) {}
+                })
+        }
+    }
+
+    private fun changeProfileImageOnClick() {
+        // Uruchom galerię zdjęć za pomocą launchera
+        galleryLauncher.launch("image/*")
+    }
+
+    private fun updateProfileImage() {
+        currentUserUid?.let { uid ->
+            profileImageUri?.let { uri ->
+                val ref = FirebaseDatabase.getInstance().getReference("Users").child(uid)
+                ref.child("profileImage").setValue(uri.toString())
+                    .addOnSuccessListener {
+                        // Aktualizuj ImageView z nowym obrazem profilowym
+                        profileImageView.setImageURI(uri)
+                    }
             }
+        }
     }
 }
-
-        fun newInstance(param1: String, param2: String) =
-            ProfileFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
-                }
-            }
 

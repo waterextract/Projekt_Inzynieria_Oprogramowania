@@ -8,6 +8,10 @@ android {
     namespace 'com.juliaijustyna.apka'
     compileSdk 34
 
+    viewBinding{
+        enabled=true
+    }
+
     defaultConfig {
         applicationId "com.juliaijustyna.apka"
         minSdk 21
