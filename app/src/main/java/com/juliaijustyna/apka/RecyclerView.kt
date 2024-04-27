@@ -9,6 +9,10 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.storage.FirebaseStorage
+import com.squareup.picasso.Picasso
+
+
 
 class PlayersAdapter(private val players: List<String>) :
     RecyclerView.Adapter<PlayersAdapter.PlayerViewHolder>() {
@@ -34,9 +38,21 @@ class PlayersAdapter(private val players: List<String>) :
         }
         // Pobierz avatar użytkownika na podstawie UID
         // Tutaj można dodać logikę pobierania avatara i ustawiania go w ImageView
+        val storageRef = FirebaseStorage.getInstance().reference
+        val imageRef = storageRef.child("profile_images").child("$userId.jpg")
+
+        imageRef.downloadUrl.addOnSuccessListener { downloadUri ->
+            // Pobierz adres URL obrazu
+            val imageUrl = downloadUri.toString()
+            // Załaduj obraz za pomocą Picasso
+            Picasso.get().load(imageUrl).into(holder.avatarImageView)
+        }.addOnFailureListener { exception ->
+            // Obsługa błędu podczas pobierania adresu URL obrazu
+        }
     }
 
     override fun getItemCount(): Int {
         return players.size
     }
 }
+

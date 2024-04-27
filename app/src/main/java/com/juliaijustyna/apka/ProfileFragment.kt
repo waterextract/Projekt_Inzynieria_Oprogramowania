@@ -63,6 +63,9 @@ class ProfileFragment : Fragment() {
         loadProfileImage()
         loadUsername()
 
+        // Obsługa kliknięcia w obraz profilowy
+        profileImageView.setOnClickListener { changeProfileImageOnClick() }
+
         buttonBack.setOnClickListener {
             val homeFragment = HomeFragment()
 
@@ -75,10 +78,9 @@ class ProfileFragment : Fragment() {
             transaction.commit()
         }
 
-
-
         return view
     }
+
 
     private fun loadProfileImage() {
         val storageRef = FirebaseStorage.getInstance().reference
@@ -89,7 +91,7 @@ class ProfileFragment : Fragment() {
             val imageUrl = downloadUri.toString()
 
 
-             Picasso.get().load(imageUrl).into(profileImageView)
+            Picasso.get().load(imageUrl).into(profileImageView)
         }.addOnFailureListener { exception ->
             // Obsługa błędu podczas pobierania adresu URL obrazu
         }
@@ -119,29 +121,32 @@ class ProfileFragment : Fragment() {
     }
 
     private fun updateProfileImage() {
-            profileImageUri?.let { uri ->
-                val storageRef = FirebaseStorage.getInstance().reference
-                val imageRef = storageRef.child("profile_images").child("$uid.jpg")
+        profileImageUri?.let { uri ->
+            val storageRef = FirebaseStorage.getInstance().reference
+            val imageRef = storageRef.child("profile_images").child("$uid.jpg")
 
-                imageRef.putFile(uri)
-                    .addOnSuccessListener { taskSnapshot ->
-                        imageRef.downloadUrl.addOnSuccessListener { downloadUri ->
-                            // Sprawdź, czy downloadUri nie jest nullem
-                            downloadUri?.let { uri ->
-                                // Zapisz URL obrazu w bazie danych Firebase
-                                val ref = FirebaseDatabase.getInstance().getReference("Users").child(uid!!)
-                                ref.child("profileImage").setValue(uri.toString())
-                                    .addOnSuccessListener {
-                                        // Sukces
-                                    }
-                                    .addOnFailureListener { exception ->
-                                        // Obsługa błędu podczas ustawiania wartości
-                                    }
-                            }
+            imageRef.putFile(uri)
+                .addOnSuccessListener { taskSnapshot ->
+                    imageRef.downloadUrl.addOnSuccessListener { downloadUri ->
+                        // Sprawdź, czy downloadUri nie jest nullem
+                        downloadUri?.let { uri ->
+                            // Zapisz URL obrazu w bazie danych Firebase
+                            val ref =
+                                FirebaseDatabase.getInstance().getReference("Users").child(uid!!)
+                            ref.child("profileImage").setValue(uri.toString())
+                                .addOnSuccessListener {
+                                    // Sukces - ponownie załaduj zdjęcie profilowe
+                                    loadProfileImage()
+                                }
+                                .addOnFailureListener { exception ->
+                                    // Obsługa błędu podczas ustawiania wartości
+                                }
                         }
                     }
+                }
 
-            }
         }
     }
+}
+
 
