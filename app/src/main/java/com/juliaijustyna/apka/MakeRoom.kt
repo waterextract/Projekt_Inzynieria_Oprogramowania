@@ -46,6 +46,7 @@ class MakeRoom : AppCompatActivity() {
 
             val roomRef = FirebaseDatabase.getInstance().getReference("rooms").child(roomId)
             roomRef.child("players").child(playerId).setValue(true)
+            roomRef.child("hostId").setValue(currentUser.uid)
             roomRef.child("state").setValue("waiting")
                 .addOnSuccessListener {
                     Toast.makeText(this, "Pokój został utworzony pomyślnie", Toast.LENGTH_SHORT).show()

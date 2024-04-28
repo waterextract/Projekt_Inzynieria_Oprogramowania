@@ -18,6 +18,7 @@ class LobbyActivity : AppCompatActivity() {
     private lateinit var roomRef: DatabaseReference
     private lateinit var usersRef: DatabaseReference // Referencja do węzła z nazwami użytkowników
     private lateinit var playersRecyclerView: RecyclerView
+    private lateinit var hostId: String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -47,6 +48,17 @@ class LobbyActivity : AppCompatActivity() {
         // Ustawienie layout managera dla RecyclerView
         playersRecyclerView.layoutManager = LinearLayoutManager(this)
 
+        roomRef.child("hostId").addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                hostId = snapshot.value.toString()
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                // Obsługa błędu pobierania identyfikatora gospodarza
+            }
+        })
+
+
         // Dodaj nasłuchiwanie na zmiany w liście użytkowników
         roomRef.child("players").addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
@@ -64,6 +76,28 @@ class LobbyActivity : AppCompatActivity() {
                 Toast.makeText(
                     this@LobbyActivity,
                     "Błąd pobierania danych: ${error.message}",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        })
+
+        roomRef.child("state").addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                // Pobierz wartość stanu pokoju
+                val state = snapshot.getValue(String::class.java)
+
+                // Sprawdź, czy stan pokoju to "playing"
+                if (state == "playing") {
+                    // Rozpocznij aktywność w zależności od wylosowanej liczby
+                    startActv()
+                }
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                // Obsługa błędu pobierania danych
+                Toast.makeText(
+                    this@LobbyActivity,
+                    "Błąd pobierania stanu pokoju: ${error.message}",
                     Toast.LENGTH_SHORT
                 ).show()
             }
@@ -154,23 +188,42 @@ class LobbyActivity : AppCompatActivity() {
     }
 
 
-
     private fun startActv() {
+        val currentUser = FirebaseAuth.getInstance().currentUser
+        if (currentUser != null && currentUser.uid == hostId) {
+            Toast.makeText(this@LobbyActivity, "Losowanie aktywności!", Toast.LENGTH_SHORT).show()
 
-        Toast.makeText(this@LobbyActivity, "Losowanie aktywności!", Toast.LENGTH_SHORT).show()
+            // Losowanie liczby od 1 do 3 (możesz dostosować zakres do ilości dostępnych aktywności)
+            val randomNumber = Random.nextInt(1, 4)
 
-        // Losowanie liczby od 1 do 3 (możesz dostosować zakres do ilości dostępnych aktywności)
-        val randomNumber = Random.nextInt(1, 4)
+            // W zależności od wylosowanej liczby, uruchamiamy odpowiednią aktywność
+            when (randomNumber) {
+                1 -> startActivity(Intent(this, QuestionActivity::class.java))
+                2 -> startActivity(Intent(this, PhotoActivity::class.java))
+                3 -> startActivity(Intent(this, PaintActivity::class.java))
+                // Dodaj więcej przypadków dla innych aktywności
+            }
 
-        // W zależności od wylosowanej liczby, uruchamiamy odpowiednią aktywność
-        when (randomNumber) {
-            1 -> startActivity(Intent(this, QuestionActivity::class.java))
-            2 -> startActivity(Intent(this, PhotoActivity::class.java))
-            3 -> startActivity(Intent(this, PaintActivity::class.java))
-            // Dodaj więcej przypadków dla innych aktywności
+            // Zmiana stanu pokoju na "playing"
+            roomRef.child("state").setValue("playing")
+                .addOnFailureListener {
+                    // Obsługa błędu zmiany stanu pokoju
+                    Toast.makeText(
+                        this@LobbyActivity,
+                        "Błąd zmiany stanu pokoju: ${it.message}",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+
+            // Upewnij się, że obecna aktywność zostanie zakończona, aby użytkownik nie mógł wrócić do niej za pomocą przycisku "wstecz"
+            finish()
+        } else {
+            Toast.makeText(
+                this@LobbyActivity,
+                "Tylko gospodarz może rozpocząć grę",
+                Toast.LENGTH_SHORT
+            ).show()
         }
-        // Upewnij się, że obecna aktywność zostanie zakończona, aby użytkownik nie mógł wrócić do niej za pomocą przycisku "wstecz"
-        finish()
     }
 }
 
