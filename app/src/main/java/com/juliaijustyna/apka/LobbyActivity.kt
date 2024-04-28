@@ -81,15 +81,26 @@ class LobbyActivity : AppCompatActivity() {
             }
         })
 
+        // Dodaj nasłuchiwanie zmiany stanu pokoju
         roomRef.child("state").addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 // Pobierz wartość stanu pokoju
                 val state = snapshot.getValue(String::class.java)
 
-                // Sprawdź, czy stan pokoju to "playing"
-                if (state == "playing") {
-                    // Rozpocznij aktywność w zależności od wylosowanej liczby
-                    startActv()
+                // Sprawdź, czy stan pokoju zaczyna się od "playing" (czyli gra została rozpoczęta przez hosta)
+                if (state != null && state.startsWith("playing")) {
+                    // Pobierz numer aktywności z informacji przekazanej przez hosta
+                    val activityNumber = state.substringAfter("playing").toInt()
+
+                    // Uruchom odpowiednią aktywność w zależności od wylosowanego numeru aktywności
+                    when (activityNumber) {
+                        1 -> startActivity(Intent(this@LobbyActivity, QuestionActivity::class.java).apply { putExtra("roomId", roomId)})
+                        2 -> startActivity(Intent(this@LobbyActivity, PhotoActivity::class.java).apply { putExtra("roomId", roomId)})
+                        3 -> startActivity(Intent(this@LobbyActivity, PaintActivity::class.java).apply { putExtra("roomId", roomId)})
+                        // Dodaj więcej przypadków dla innych aktywności
+                    }
+                    // Upewnij się, że obecna aktywność zostanie zakończona, aby użytkownik nie mógł wrócić do niej za pomocą przycisku "wstecz"
+                    finish()
                 }
             }
 
@@ -114,6 +125,12 @@ class LobbyActivity : AppCompatActivity() {
         startButton.setOnClickListener {
             startActv()
         }
+
+    }
+
+    override fun onBackPressed() {
+        // Przenieś logikę opuszczania pokoju tutaj
+        leaveRoom()
     }
 
     private fun leaveRoom() {
@@ -188,6 +205,7 @@ class LobbyActivity : AppCompatActivity() {
     }
 
 
+
     private fun startActv() {
         val currentUser = FirebaseAuth.getInstance().currentUser
         if (currentUser != null && currentUser.uid == hostId) {
@@ -196,27 +214,20 @@ class LobbyActivity : AppCompatActivity() {
             // Losowanie liczby od 1 do 3 (możesz dostosować zakres do ilości dostępnych aktywności)
             val randomNumber = Random.nextInt(1, 4)
 
-            // W zależności od wylosowanej liczby, uruchamiamy odpowiednią aktywność
-            when (randomNumber) {
-                1 -> startActivity(Intent(this, QuestionActivity::class.java))
-                2 -> startActivity(Intent(this, PhotoActivity::class.java))
-                3 -> startActivity(Intent(this, PaintActivity::class.java))
-                // Dodaj więcej przypadków dla innych aktywności
-            }
-
-            // Zmiana stanu pokoju na "playing"
-            roomRef.child("state").setValue("playing")
-                .addOnFailureListener {
+            // Zmiana stanu pokoju na "playing" i przekazanie informacji o wylosowanej aktywności
+            roomRef.child("state").setValue("playing$randomNumber")
+                .addOnSuccessListener {
+                    // Upewnij się, że obecna aktywność zostanie zakończona, aby użytkownik nie mógł wrócić do niej za pomocą przycisku "wstecz"
+                    finish()
+                }
+                .addOnFailureListener { exception ->
                     // Obsługa błędu zmiany stanu pokoju
                     Toast.makeText(
                         this@LobbyActivity,
-                        "Błąd zmiany stanu pokoju: ${it.message}",
+                        "Błąd zmiany stanu pokoju: ${exception.message}",
                         Toast.LENGTH_SHORT
                     ).show()
                 }
-
-            // Upewnij się, że obecna aktywność zostanie zakończona, aby użytkownik nie mógł wrócić do niej za pomocą przycisku "wstecz"
-            finish()
         } else {
             Toast.makeText(
                 this@LobbyActivity,
@@ -225,6 +236,7 @@ class LobbyActivity : AppCompatActivity() {
             ).show()
         }
     }
+
 }
 
 
