@@ -46,6 +46,12 @@ class HomeFragment : Fragment() {
             startActivity(intent)
         }
 
+        val btnQ = view.findViewById<Button>(R.id.quest)
+        btnQ.setOnClickListener {
+            val intent = Intent(activity, AddQuestActivity::class.java)
+            startActivity(intent)
+        }
+
         return view
     }
 

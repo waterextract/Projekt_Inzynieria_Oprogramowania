@@ -13,7 +13,7 @@ import kotlin.random.Random
 class MakeRoom : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_room)
+        setContentView(R.layout.activity_add_quest)
 
         // Znajdź przycisk i pola tekstowe w widoku
         val addButton: Button = findViewById(R.id.add_button)
