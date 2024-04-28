@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
+import kotlin.random.Random
 
 class LobbyActivity : AppCompatActivity() {
 
@@ -72,6 +73,12 @@ class LobbyActivity : AppCompatActivity() {
         val leaveButton: Button = findViewById(R.id.leaveButton)
         leaveButton.setOnClickListener {
             leaveRoom()
+        }
+
+        // pzrycisk Start
+        val startButton: Button = findViewById(R.id.startButton)
+        startButton.setOnClickListener {
+            startActv()
         }
     }
 
@@ -145,4 +152,27 @@ class LobbyActivity : AppCompatActivity() {
         }
 
     }
+
+
+
+    private fun startActv() {
+
+        Toast.makeText(this@LobbyActivity, "Losowanie aktywności!", Toast.LENGTH_SHORT).show()
+
+        // Losowanie liczby od 1 do 3 (możesz dostosować zakres do ilości dostępnych aktywności)
+        val randomNumber = Random.nextInt(1, 4)
+
+        // W zależności od wylosowanej liczby, uruchamiamy odpowiednią aktywność
+        when (randomNumber) {
+            1 -> startActivity(Intent(this, QuestionActivity::class.java))
+            2 -> startActivity(Intent(this, PhotoActivity::class.java))
+            3 -> startActivity(Intent(this, PaintActivity::class.java))
+            // Dodaj więcej przypadków dla innych aktywności
+        }
+        // Upewnij się, że obecna aktywność zostanie zakończona, aby użytkownik nie mógł wrócić do niej za pomocą przycisku "wstecz"
+        finish()
+    }
 }
+
+
+
