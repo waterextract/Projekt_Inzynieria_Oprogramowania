@@ -3,6 +3,7 @@ package com.juliaijustyna.apka
 import android.os.Bundle
 import android.widget.Button
 import android.widget.EditText
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
@@ -14,7 +15,7 @@ class AddQuestActivity : AppCompatActivity() {
 
     private lateinit var questionEditText: EditText
     private lateinit var submitButton: Button
-    private val firestore = FirebaseFirestore.getInstance()
+
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -36,27 +37,17 @@ class AddQuestActivity : AppCompatActivity() {
     }
 
     private fun saveQuestionToFirebase(question: String) {
-        // Access the "questions" collection in Firebase
-        val questionsRef = firestore.collection("questions")
 
-        // Create a new document with a generated ID
+        val questionsRef = FirebaseFirestore.getInstance().collection("questions")
+
         val newQuestionRef = questionsRef.document()
 
-        // Set the data for the document
-        val data = hashMapOf(
-            "question" to question
-            // Add more fields if needed
-        )
-
-        // Add the data to the document
+        val data = hashMapOf("question" to question)
         newQuestionRef.set(data)
             .addOnSuccessListener {
-                // Document saved successfully
-                // You can add any success handling here
+                Toast.makeText(this, "przeslano pomyślnie", Toast.LENGTH_SHORT).show()
             }
-            .addOnFailureListener { e ->
-                // Error handling
-                // You can add any error handling here
+            .addOnFailureListener {  Toast.makeText(this, "Błąd przesylania: ${it.message}", Toast.LENGTH_SHORT).show()
             }
     }
 

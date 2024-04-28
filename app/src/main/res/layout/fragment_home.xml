@@ -17,7 +17,7 @@
         />
 
     <Button
-        android:id="@+id/quest"
+        android:id="@+id/questBtn"
         android:layout_width="250dp"
         android:layout_height="70dp"
         android:layout_centerHorizontal="true"
