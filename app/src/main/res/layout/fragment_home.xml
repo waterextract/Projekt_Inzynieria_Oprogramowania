@@ -16,6 +16,17 @@
         android:textColor="@color/lavender"
         />
 
+    <Button
+        android:id="@+id/questBtn"
+        android:layout_width="250dp"
+        android:layout_height="70dp"
+        android:layout_centerHorizontal="true"
+        android:layout_weight="1"
+        android:minHeight="50dp"
+        android:text="quest"
+        android:textAllCaps="false"
+        android:textColor="@color/white" />
+
     <LinearLayout
         android:id="@+id/bottomLl"
         android:layout_width="395dp"
