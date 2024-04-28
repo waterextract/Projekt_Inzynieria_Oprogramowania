@@ -49,7 +49,7 @@ class HomeFragment : Fragment() {
 
         val btn3 = view.findViewById<Button>(R.id.questBtn)
         btn3.setOnClickListener {
-            Log.d("HomeFragment", "Button clicked")
+            //Log.d("HomeFragment", "Button clicked")
             val intent = Intent(activity, AddQuestActivity::class.java)
             startActivity(intent)
         }

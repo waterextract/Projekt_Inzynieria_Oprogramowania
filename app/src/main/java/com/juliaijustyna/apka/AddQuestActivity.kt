@@ -13,14 +13,16 @@ import com.google.firebase.firestore.FirebaseFirestore
 
 class AddQuestActivity : AppCompatActivity() {
 
-    private lateinit var questionEditText: EditText
-    private lateinit var submitButton: Button
+
 
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_add_quest)
+
+        val questionEditText: EditText
+        val submitButton: Button
 
         questionEditText = findViewById(R.id.pytanie)
         submitButton = findViewById(R.id.send)
