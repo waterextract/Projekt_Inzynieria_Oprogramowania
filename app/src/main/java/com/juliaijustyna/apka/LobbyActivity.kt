@@ -212,7 +212,7 @@ class LobbyActivity : AppCompatActivity() {
             Toast.makeText(this@LobbyActivity, "Losowanie aktywności!", Toast.LENGTH_SHORT).show()
 
             // Losowanie liczby od 1 do 3 (możesz dostosować zakres do ilości dostępnych aktywności)
-            val randomNumber = Random.nextInt(1, 4)
+            val randomNumber = Random.nextInt(1, 2)
 
             // Zmiana stanu pokoju na "playing" i przekazanie informacji o wylosowanej aktywności
             roomRef.child("state").setValue("playing$randomNumber")
