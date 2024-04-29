@@ -7,16 +7,7 @@
     android:layout_height="match_parent"
     tools:context=".QuestionActivity">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Question"
-        android:textSize="30sp"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="240dp"
-        android:layout_centerInParent="true"
-        android:textColor="@color/lavender"
-        />
+
 
     <TextView
         android:id="@+id/questionTextView"
@@ -28,6 +19,24 @@
         android:text="Question Text"
         android:gravity="center"
         android:layout_marginTop="16dp"/>
+
+    <EditText
+        android:id="@+id/answerEditText"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:hint="Odpowiedź"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        android:inputType="text"/>
+
+    <Button
+        android:id="@+id/submitAnswerButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Wyślij odpowiedź"
+        android:layout_below="@id/answerEditText"
+        android:layout_centerHorizontal="true"/>
+
 
 
 </RelativeLayout>

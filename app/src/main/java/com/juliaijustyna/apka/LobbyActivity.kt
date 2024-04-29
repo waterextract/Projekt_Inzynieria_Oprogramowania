@@ -1,5 +1,7 @@
 package com.juliaijustyna.apka
 
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
@@ -42,6 +44,11 @@ class LobbyActivity : AppCompatActivity() {
         val roomIdTextView: TextView = findViewById(R.id.roomIdValueTextView)
         playersRecyclerView = findViewById(R.id.playersRecyclerView)
 
+        val copyRoomIdButton: Button = findViewById(R.id.copyRoomIdButton)
+        copyRoomIdButton.setOnClickListener {
+            copyRoomIdToClipboard()
+        }
+
         // Ustaw wyświetlanie ID pokoju
         roomIdTextView.text = roomId
 
@@ -53,6 +60,9 @@ class LobbyActivity : AppCompatActivity() {
                 hostId = snapshot.value.toString()
             }
 
+
+
+
             override fun onCancelled(error: DatabaseError) {
                 // Obsługa błędu pobierania identyfikatora gospodarza
             }
@@ -63,10 +73,14 @@ class LobbyActivity : AppCompatActivity() {
         roomRef.child("players").addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 val userList = mutableListOf<String>()
-                for (userSnapshot in snapshot.children) {
+                snapshot.children.forEach { userSnapshot ->
                     val userId = userSnapshot.key ?: ""
                     userList.add(userId)
                 }
+
+                // Aktualizacja liczby graczy w pokoju
+                updatePlayerCount(userList.size)
+
                 // Utwórz i ustaw adapter dla RecyclerView
                 val adapter = PlayersAdapter(userList)
                 playersRecyclerView.adapter = adapter
@@ -126,11 +140,42 @@ class LobbyActivity : AppCompatActivity() {
             startActv()
         }
 
+
+
     }
+
+    private fun copyRoomIdToClipboard() {
+        val clipboard = getSystemService(CLIPBOARD_SERVICE) as ClipboardManager
+        val clip = ClipData.newPlainText("Room ID", roomId)
+        clipboard.setPrimaryClip(clip)
+        Toast.makeText(this, "ID pokoju skopiowane do schowka", Toast.LENGTH_SHORT).show()
+    }
+
 
     override fun onBackPressed() {
         // Przenieś logikę opuszczania pokoju tutaj
         leaveRoom()
+    }
+
+    // Funkcja do aktualizacji liczby graczy w pokoju
+    private fun updatePlayerCount(count: Int) {
+        roomRef.child("playerCount").runTransaction(object : Transaction.Handler {
+            override fun doTransaction(mutableData: MutableData): Transaction.Result {
+                mutableData.value = count
+                return Transaction.success(mutableData)
+            }
+
+            override fun onComplete(databaseError: DatabaseError?, committed: Boolean, dataSnapshot: DataSnapshot?) {
+                if (databaseError != null) {
+                    // Obsługa błędu aktualizacji
+                    Toast.makeText(
+                        this@LobbyActivity,
+                        "Błąd aktualizacji liczby graczy: ${databaseError.message}",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
+        })
     }
 
     private fun leaveRoom() {
