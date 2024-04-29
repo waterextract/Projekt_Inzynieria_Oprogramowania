@@ -12,6 +12,17 @@
         android:textSize="18sp"
         android:textStyle="bold" />
 
+    <Button
+        android:id="@+id/copyRoomIdButton"
+        android:layout_width="80dp"
+        android:layout_height="30dp"
+        android:textSize="8sp"
+        android:text="COPY ID"
+        android:layout_alignTop="@id/roomIdTextView"
+        android:layout_marginLeft="90dp"
+        android:onClick="copyRoomId"/>
+
+
     <TextView
         android:id="@+id/roomIdValueTextView"
         android:layout_width="wrap_content"

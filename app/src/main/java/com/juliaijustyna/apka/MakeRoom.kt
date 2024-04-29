@@ -17,26 +17,15 @@ class MakeRoom : AppCompatActivity() {
 
         // Znajdź przycisk i pola tekstowe w widoku
         val addButton: Button = findViewById(R.id.add_button)
-        val descEditText: EditText = findViewById(R.id.Desc)
-        val nameEditText: EditText = findViewById(R.id.name)
+        val pubButton: Button = findViewById(R.id.pub_button)
+
 
         // Ustaw nasłuchiwacz zdarzeń dla przycisku "START"
-        addButton.setOnClickListener {
-            // Pobierz dane z pól tekstowych
-            val roomName = nameEditText.text.toString().trim()
-            val roomDesc = descEditText.text.toString().trim()
-
-            // Sprawdź, czy pola nie są puste
-            if (roomName.isEmpty() || roomDesc.isEmpty()) {
-                Toast.makeText(this, "Proszę wypełnić wszystkie pola", Toast.LENGTH_SHORT).show()
-            } else {
-                // Utwórz pokój w bazie danych Firebase
-                createRoom(roomName, roomDesc)
-            }
-        }
+        addButton.setOnClickListener {  createRoom() }
+        pubButton.setOnClickListener {  Toast.makeText(this, "WORK IN PROGRESS", Toast.LENGTH_SHORT).show() }
     }
 
-    private fun createRoom(roomName: String, roomDesc: String) {
+    private fun createRoom() {
         val currentUser = FirebaseAuth.getInstance().currentUser
         if (currentUser != null) {
             // Generuj unikalne id pokoju
