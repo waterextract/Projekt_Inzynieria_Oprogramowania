@@ -14,6 +14,9 @@
         android:theme="@style/Theme.Apka"
         tools:targetApi="34">
         <activity
+            android:name=".AnswerActivity"
+            android:exported="false" />
+        <activity
             android:name=".AddQuestActivity"
             android:exported="false" />
         <activity

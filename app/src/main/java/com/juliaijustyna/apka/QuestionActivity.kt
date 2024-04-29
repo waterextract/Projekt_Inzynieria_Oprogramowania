@@ -227,7 +227,7 @@ class QuestionActivity : AppCompatActivity() {
 
                     // Uruchom odpowiednią aktywność w zależności od wylosowanego numeru aktywności
                     when (activityNumber) {
-                        4 -> startActivity(Intent(this@QuestionActivity, PaintActivity::class.java).apply { putExtra("roomId", roomId)})
+                        4 -> startActivity(Intent(this@QuestionActivity, AnswerActivity::class.java).apply { putExtra("roomId", roomId)})
                         // Dodaj więcej przypadków dla innych aktywności
                     }
                     // Upewnij się, że obecna aktywność zostanie zakończona, aby użytkownik nie mógł wrócić do niej za pomocą przycisku "wstecz"
