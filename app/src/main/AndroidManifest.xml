@@ -14,6 +14,9 @@
         android:theme="@style/Theme.Apka"
         tools:targetApi="34">
         <activity
+            android:name=".AddPhotoActivity"
+            android:exported="false" />
+        <activity
             android:name=".AnswerActivity"
             android:exported="false" />
         <activity

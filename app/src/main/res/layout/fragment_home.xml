@@ -21,6 +21,19 @@
         android:textAllCaps="false"
         android:textColor="@color/dark_purple" />
 
+    <Button
+        android:id="@+id/photoBtn"
+        android:layout_width="250dp"
+        android:layout_height="70dp"
+        android:layout_centerHorizontal="true"
+        android:layout_weight="1"
+        android:minHeight="50dp"
+        android:layout_marginTop="150dp"
+        android:background="@drawable/rounded_corner"
+        android:text="ADD PHOTO"
+        android:textAllCaps="false"
+        android:textColor="@color/dark_purple" />
+
     <LinearLayout
         android:id="@+id/bottomLl"
         android:layout_width="395dp"
