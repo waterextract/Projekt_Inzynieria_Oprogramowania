@@ -55,9 +55,9 @@ class HomeFragment : Fragment() {
         }
 
         val btn4 = view.findViewById<Button>(R.id.photoBtn)
-        btn3.setOnClickListener {
+        btn4.setOnClickListener {
             //Log.d("HomeFragment", "Button clicked")
-            val intent = Intent(activity, AddQuestActivity::class.java)
+            val intent = Intent(activity, AddPhotoActivity::class.java)
             startActivity(intent)
         }
 

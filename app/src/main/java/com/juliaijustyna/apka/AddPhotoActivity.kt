@@ -38,15 +38,6 @@ class AddPhotoActivity : AppCompatActivity() {
         if (uid != null) {
             // Generowanie unikalnego 3-liczbowego identyfikatora
             val questionId = generateQuestionId()
-
-            val questionsRef = database.reference.child("questions").child(questionId)
-            questionsRef.setValue(question)
-                .addOnSuccessListener {
-                    Toast.makeText(this, "Przesłano pomyślnie", Toast.LENGTH_SHORT).show()
-                }
-                .addOnFailureListener {
-                    Toast.makeText(this, "Błąd przesyłania: ${it.message}", Toast.LENGTH_SHORT).show()
-                }
         }
     }
 
