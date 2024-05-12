@@ -5,6 +5,18 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
+    <TextView
+        android:id="@+id/playerIdTextView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="16sp"
+        android:padding="8dp"
+        android:textColor="@android:color/black"
+        android:text="Player ID"
+    android:drawableStart="@drawable/profile_circle_svgrepo_com"
+    android:drawablePadding="8dp"
+    android:gravity="center_vertical" />
+
 
         <TextView
             android:id="@+id/answerTextView"
@@ -17,3 +29,5 @@
             />
 
     </LinearLayout>
+
+

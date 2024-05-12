@@ -51,9 +51,6 @@ import com.google.firebase.database.ValueEventListener
             recyclerView = findViewById(R.id.answersRecyclerView)
             recyclerView.layoutManager = LinearLayoutManager(this)
             adapter = AnswersAdapter(emptyList()) // Pusta lista odpowiedzi na początek
-
-
-
             recyclerView.adapter = adapter
 
             // Pobierz referencję do odpowiedzi graczy z bazy danych
