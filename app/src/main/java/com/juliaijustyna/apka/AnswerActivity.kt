@@ -8,6 +8,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.auth.FirebaseAuth
@@ -16,6 +17,9 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
+import org.checkerframework.checker.index.qual.EnsuresLTLengthOfIf
+import java.util.ArrayList
+import java.util.Collections
 
     class AnswerActivity : AppCompatActivity() {
 
@@ -24,6 +28,7 @@ import com.google.firebase.database.ValueEventListener
         private lateinit var roomRef: DatabaseReference
         private lateinit var recyclerView: RecyclerView
         private lateinit var adapter: AnswersAdapter
+        private val AnswerList = mutableListOf<Answer>()
 
         override fun onCreate(savedInstanceState: Bundle?) {
             super.onCreate(savedInstanceState)
@@ -51,6 +56,41 @@ import com.google.firebase.database.ValueEventListener
             recyclerView = findViewById(R.id.answersRecyclerView)
             recyclerView.layoutManager = LinearLayoutManager(this)
             adapter = AnswersAdapter(emptyList()) // Pusta lista odpowiedzi na początek
+
+            val swipegesture = object : SwipeGesture()
+            {
+                override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+
+                    when(direction) {
+                        ItemTouchHelper.LEFT -> {
+                            Toast.makeText(this@AnswerActivity, "LEWO", Toast.LENGTH_SHORT).show()
+                            viewHolder.adapterPosition
+                        }
+
+                        ItemTouchHelper.RIGHT -> {
+                            Toast.makeText(this@AnswerActivity, "PRAWO", Toast.LENGTH_SHORT).show()
+                            viewHolder.adapterPosition
+                        }
+                    }
+                }
+
+                override fun onMove(
+                    recyclerView: RecyclerView,
+                    viewHolder: RecyclerView.ViewHolder,
+                    target: RecyclerView.ViewHolder
+                ): Boolean {
+                    val from_pos = viewHolder.adapterPosition
+                    val to_pos = target.adapterPosition
+
+                    Collections.swap(AnswerList,from_pos,to_pos)
+                    adapter.notifyItemMoved(from_pos,to_pos)
+                    return false
+                }
+            }
+
+            val touchHelper = ItemTouchHelper(swipegesture)
+            touchHelper.attachToRecyclerView(recyclerView)
+
             recyclerView.adapter = adapter
 
             // Pobierz referencję do odpowiedzi graczy z bazy danych
