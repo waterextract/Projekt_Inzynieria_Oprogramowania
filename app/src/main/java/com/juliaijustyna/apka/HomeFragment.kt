@@ -7,7 +7,10 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.Animation
+import android.view.animation.AnimationUtils
 import android.widget.Button
+import android.widget.ImageView
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -60,6 +63,15 @@ class HomeFragment : Fragment() {
             val intent = Intent(activity, AddPhotoActivity::class.java)
             startActivity(intent)
         }
+
+        // Pobierz referencję do ImageView
+        val starImageView = view.findViewById<ImageView>(R.id.starImageView)
+
+        // Załaduj animację z pliku XML
+        val animation = AnimationUtils.loadAnimation(requireContext(), R.anim.star_animation)
+
+        // Rozpocznij animację na ImageView
+        starImageView.startAnimation(animation)
 
         return view
     }
