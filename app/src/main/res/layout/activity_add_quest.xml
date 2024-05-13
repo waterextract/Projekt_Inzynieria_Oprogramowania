@@ -6,7 +6,8 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".AddQuestActivity">
+    tools:context=".AddQuestActivity"
+    android:background="@drawable/gradient_background">
 
     <EditText
         android:id="@+id/pytanie"
@@ -29,6 +30,7 @@
         android:minHeight="50dp"
         android:text="SUBBMIT"
         android:textAllCaps="false"
-        android:textColor="@color/white" />
+        android:background="@drawable/rounded_corner"
+        android:textColor="@color/dark_purple" />
 
 </RelativeLayout>

@@ -5,7 +5,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".LoginActivity">
+    tools:context=".LoginActivity"
+    android:background="@drawable/gradient_background">
 
     <ScrollView
         android:layout_width="match_parent"
@@ -28,7 +29,7 @@
                     android:layout_width="300dp"
                     android:layout_height="60dp"
                     android:layout_marginTop="30dp"
-                    android:background="@drawable/lavender_border"
+                    android:background="@drawable/rounded_corner"
                     android:drawableLeft="@drawable/baseline_email_24"
                     android:drawablePadding="8dp"
                     android:hint="Email"
@@ -41,7 +42,7 @@
                     android:layout_width="300dp"
                     android:layout_height="60dp"
                     android:layout_marginTop="20dp"
-                    android:background="@drawable/lavender_border"
+                    android:background="@drawable/rounded_corner"
                     android:drawableLeft="@drawable/baseline_lock_24"
                     android:drawablePadding="8dp"
                     android:hint="Password"
@@ -57,6 +58,7 @@
                     android:layout_height="70dp"
                     android:layout_marginTop="30dp"
                     android:text="Login"
+                    android:background="@drawable/rounded_corner"
                     android:textSize="18sp"
                     android:layout_gravity="center"
                     app:cornerRadius="30dp" />
@@ -69,7 +71,7 @@
                     android:layout_marginTop="6dp"
                     android:padding="8dp"
                     android:text="Forgot password?"
-                    android:textColor="@color/lavender"
+                    android:textColor="@color/white"
                     android:textSize="16sp" />
 
                 <TextView
@@ -80,7 +82,7 @@
                     android:layout_marginTop="14dp"
                     android:padding="8dp"
                     android:text="Signup"
-                    android:textColor="@color/lavender"
+                    android:textColor="@color/white"
                     android:textSize="18sp" />
 
             </LinearLayout>

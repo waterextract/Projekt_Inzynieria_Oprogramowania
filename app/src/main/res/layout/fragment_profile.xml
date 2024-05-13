@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/gradient_background"
     tools:context=".ProfileFragment">
 
 
@@ -11,7 +12,7 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="?actionBarSize"
-        android:background="@color/lavender">
+        android:background="@color/dark_purple">
 
 
     <ImageButton
@@ -83,7 +84,7 @@
         android:layout_marginBottom="120dp"
         android:text="USERNAME"
         android:textSize="20dp"
-        android:textColor="@color/black"
+        android:textColor="@color/white"
         android:textStyle="bold" />
     </LinearLayout>
 

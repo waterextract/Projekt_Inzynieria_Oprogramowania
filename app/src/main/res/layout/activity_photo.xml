@@ -5,6 +5,7 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/gradient_background"
     tools:context=".PhotoActivity">
 
     <TextView
@@ -12,8 +13,8 @@
         android:layout_height="wrap_content"
         android:textSize="18sp"
         android:padding="16dp"
-        android:textColor="@android:color/black"
-        android:text="UPODOBNIJ SIĘ DO ZJĘCIA NAJLEPIEJ JAK POTRAFISZ!"
+        android:textColor="@android:color/white"
+        android:text="UPODOBNIJ SIĘ DO ZDJĘCIA NAJLEPIEJ JAK POTRAFISZ!"
         android:gravity="center"
         android:layout_marginTop="16dp"
         />

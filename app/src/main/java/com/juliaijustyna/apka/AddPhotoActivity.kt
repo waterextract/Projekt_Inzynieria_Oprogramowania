@@ -60,14 +60,6 @@ class AddPhotoActivity : AppCompatActivity() {
                     filePath.downloadUrl.addOnSuccessListener { uri ->
                         val imageUrl = uri.toString()
                         val database = FirebaseDatabase.getInstance()
-                        val questionsRef = database.reference.child("photos").child(questionId)
-                        questionsRef.setValue(imageUrl)
-                            .addOnSuccessListener {
-                                Toast.makeText(this, "Przesłano pomyślnie", Toast.LENGTH_SHORT).show()
-                            }
-                            .addOnFailureListener {
-                                Toast.makeText(this, "Błąd przesyłania: ${it.message}", Toast.LENGTH_SHORT).show()
-                            }
                     }
                 }
                 .addOnFailureListener {
