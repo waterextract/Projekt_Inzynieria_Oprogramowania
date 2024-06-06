@@ -64,13 +64,11 @@ class HomeFragment : Fragment() {
             startActivity(intent)
         }
 
-        // Pobierz referencję do ImageView
+
         val starImageView = view.findViewById<ImageView>(R.id.starImageView)
 
-        // Załaduj animację z pliku XML
         val animation = AnimationUtils.loadAnimation(requireContext(), R.anim.star_animation)
 
-        // Rozpocznij animację na ImageView
         starImageView.startAnimation(animation)
 
         return view
