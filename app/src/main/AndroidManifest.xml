@@ -3,8 +3,17 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-feature android:name="android.hardware.camera" android:required="true" />
+    <uses-feature android:name="android.hardware.camera.any" />
     <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-feature android:name="android.hardware.camera" android:required="false"/>
+    <uses-feature android:name="android.hardware.camera.front" android:required="false"/>
+
+    <queries>
+        <intent>
+            <action android:name="android.media.action.IMAGE_CAPTURE"/>
+        </intent>
+    </queries>
 
 
 
@@ -17,6 +26,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Apka"
         tools:targetApi="34">
+
         <activity
             android:name=".AddPhotoActivity"
             android:exported="false" />
@@ -67,6 +77,17 @@
             android:name=".MainActivity"
             android:exported="false"
             android:theme="@style/Theme.MainActivity" />
+
+        <provider
+            android:authorities="com.juliaijustyna.apka.provider"
+            android:name="androidx.core.content.FileProvider"
+            android:exported="false"
+            android:grantUriPermissions="true"/>
+
+        <meta-data android:name="android.support.FILE_PROVIDER_PATHS"
+            android:resource="@xml/file_paths"/>
+
+
     </application>
 
 </manifest>

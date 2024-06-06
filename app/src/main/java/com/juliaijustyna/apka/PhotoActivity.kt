@@ -1,14 +1,12 @@
 package com.juliaijustyna.apka
 
-import android.content.ContentValues
 import android.content.Intent
-import android.net.Uri
+import android.app.Activity
 import android.os.Bundle
 import android.provider.MediaStore
 import android.widget.Button
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
-import androidx.activity.result.ActivityResultLauncher
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -22,18 +20,17 @@ import android.widget.ImageView
 import com.google.firebase.storage.FirebaseStorage
 import androidx.activity.result.contract.ActivityResultContracts
 import com.squareup.picasso.Picasso
-
+import android.Manifest
+import android.graphics.Bitmap
+import android.util.Base64
+import java.io.ByteArrayOutputStream
 
 class PhotoActivity : AppCompatActivity() {
 
     private lateinit var roomId: String
     private lateinit var roomRef: DatabaseReference
-   // private lateinit var takePictureLauncher: ActivityResultLauncher
     private lateinit var sendPhoto: Button
     private lateinit var photoAct: ImageView
-    private var UserUid: String? = null
-    private var PhotoUri: Uri? = null
-    private var uid: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -50,7 +47,6 @@ class PhotoActivity : AppCompatActivity() {
         // Inicjalizuj referencję do pokoju w bazie danych Firebase
         roomRef = FirebaseDatabase.getInstance().getReference("rooms").child(roomId)
 
-
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
@@ -60,8 +56,11 @@ class PhotoActivity : AppCompatActivity() {
         sendPhoto = findViewById(R.id.sendPhoto)
         photoAct = findViewById(R.id.photoAct)
         val photoRef = roomRef.child("images")
+        sendPhoto.setOnClickListener {
+            requestCameraPermission.launch(Manifest.permission.CAMERA)
+        }
 
-// Nasłuchuj zmian w zdjęciu
+        // Nasłuchuj zmian w zdjęciu
         photoRef.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 val imageUrl = snapshot.getValue(String::class.java)
@@ -80,7 +79,7 @@ class PhotoActivity : AppCompatActivity() {
             }
         })
 
-// Sprawdź, czy zdjęcie już istnieje w bazie danych pokoju
+        // Sprawdź, czy zdjęcie już istnieje w bazie danych pokoju
         photoRef.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 if (!snapshot.exists()) {
@@ -88,7 +87,6 @@ class PhotoActivity : AppCompatActivity() {
                     getRandomPhoto()
                 }
             }
-
 
             override fun onCancelled(error: DatabaseError) {
                 Toast.makeText(
@@ -99,65 +97,6 @@ class PhotoActivity : AppCompatActivity() {
             }
         })
     }
-
-      /* val takePictureLauncher = registerForActivityResult(ActivityResultContracts.TakePicture()) { success: Boolean ->
-            if (success) {
-                // Pomyślnie wykonano zdjęcie, tutaj możesz przetwarzać lub aktualizować obraz profilowy
-                updatePhoto()
-            }
-        }
-
-        fun openCamera() {
-            val photoUri = createImageUri() // Tutaj pozostawiamy typ Uri
-            takePictureLauncher.launch(photoUri)
-        }
-
-        sendPhoto.setOnClickListener { openCamera() }
-
-    }
-
-    // Gdy chcesz otworzyć aparat, wywołaj launcher
-
-
-    // Funkcja do tworzenia URI dla zapisanego zdjęcia
-    private fun createImageUri(): Uri {
-        val context = applicationContext
-        val contentValues = ContentValues().apply {
-           put(MediaStore.Images.Media.TITLE, "New Picture")
-            put(MediaStore.Images.Media.DESCRIPTION, "From the camera")
-        }
-        return context.contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues)!!
-    }
-
-
-
-    private fun updatePhoto() {
-        PhotoUri?.let { uri ->
-            val storageRef = FirebaseStorage.getInstance().reference
-            val imageRef = storageRef.child("game_images").child("$uid.jpg")
-
-            imageRef.putFile(uri)
-                .addOnSuccessListener { taskSnapshot ->
-                    imageRef.downloadUrl.addOnSuccessListener { downloadUri ->
-                        // Sprawdź, czy downloadUri nie jest nullem
-                        downloadUri?.let { uri ->
-                            // Zapisz URL obrazu w bazie danych Firebase
-                            val ref =
-                                FirebaseDatabase.getInstance().getReference("Users").child(uid!!)
-                            ref.child("Photo").setValue(uri.toString())
-                                .addOnSuccessListener {
-                                }
-                                .addOnFailureListener { exception ->
-                                    // Obsługa błędu podczas ustawiania wartości
-                                }
-                        }
-                    }
-                }
-
-        }
-    }
-*/
-
 
     private fun getRandomPhoto() {
         val storageRef = FirebaseStorage.getInstance().getReference("images")
@@ -207,11 +146,164 @@ class PhotoActivity : AppCompatActivity() {
                     Toast.LENGTH_SHORT
                 ).show()
             }
+
+        // Dodaj nasłuchiwanie zmiany stanu pokoju
+        roomRef.child("state").addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                // Pobierz wartość stanu pokoju
+                val state = snapshot.getValue(String::class.java)
+
+                // Sprawdź, czy stan pokoju zaczyna się od "playing" (czyli gra została rozpoczęta przez hosta)
+                if (state != null && state.startsWith("playing")) {
+                    // Pobierz numer aktywności z informacji przekazanej przez hosta
+                    val activityNumber = state.substringAfter("playing").toInt()
+
+                    // Uruchom odpowiednią aktywność w zależności od wylosowanego numeru aktywności
+                    when (activityNumber) {
+                        4 -> startActivity(Intent(this@PhotoActivity, AnswerActivity::class.java).apply { putExtra("roomId", roomId)})
+                        // Dodaj więcej przypadków dla innych aktywności
+                    }
+                    // Upewnij się, że obecna aktywność zostanie zakończona, aby użytkownik nie mógł wrócić do niej za pomocą przycisku "wstecz"
+                }
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                // Obsługa błędu pobierania danych
+                Toast.makeText(
+                    this@PhotoActivity,
+                    "Błąd pobierania stanu pokoju: ${error.message}",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        })
+
     }
 
-    private fun displayPhotoForParticipants(imageUrl: String) {
-        Picasso.get().load(imageUrl).into(photoAct)
+    private val requestCameraPermission = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted: Boolean ->
+        if (isGranted) {
+            // Uprawnienia do aparatu zostały udzielone, możesz teraz uruchomić kamerę
+            val takePictureIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE).apply {
+                putExtra("android.intent.extras.CAMERA_FACING", 1) // 1 indicates front camera
+                putExtra("android.intent.extras.LENS_FACING_FRONT", 1)
+                putExtra("android.intent.extra.USE_FRONT_CAMERA", true)
+            }
+            startForResult.launch(takePictureIntent)
+        } else {
+            // Obsłuż sytuację, gdy użytkownik nie udzielił uprawnień
+            Toast.makeText(this, "Uprawnienia do aparatu nie zostały udzielone", Toast.LENGTH_SHORT)
+                .show()
+        }
     }
+
+    private val startForResult = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            // Sprawdź, czy dane nie są puste
+            result.data?.extras?.get("data")?.let { imageBitmap ->
+                savePhotoToDatabase(imageBitmap as Bitmap)
+            }
+        }
+    }
+
+    private fun savePhotoToDatabase(imageBitmap: Bitmap) {
+        val storageRef = FirebaseStorage.getInstance().getReference("room_images")
+
+        // Konwertuj obraz na tablicę bajtów
+        val imageByteArray = ByteArrayOutputStream()
+        imageBitmap.compress(Bitmap.CompressFormat.PNG, 100, imageByteArray)
+        val imageData = imageByteArray.toByteArray()
+
+        // Utwórz nazwę pliku
+        val fileName = "photo_${System.currentTimeMillis()}.png"
+        val imageRef = storageRef.child(fileName)
+
+        // Prześlij dane obrazu do Firebase Storage
+        imageRef.putBytes(imageData)
+            .addOnSuccessListener {
+                // Pobierz liczbę dodanych zdjęć z bazy danych
+                roomRef.child("photoCount").addListenerForSingleValueEvent(object : ValueEventListener {
+                    override fun onDataChange(snapshot: DataSnapshot) {
+                        var photoCount = snapshot.getValue(Int::class.java) ?: 0
+                        photoCount++
+
+                        // Zapisz liczbę dodanych zdjęć w bazie danych
+                        roomRef.child("photoCount").setValue(photoCount)
+                            .addOnCompleteListener { task ->
+                                if (task.isSuccessful) {
+                                    // Powiadomienie użytkownika o pomyślnym zapisaniu liczby dodanych zdjęć
+                                    Toast.makeText(
+                                        this@PhotoActivity,
+                                        "Pomyślnie zapisano zdjęcie w bazie danych",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+
+                                    // Pobierz liczbę graczy z bazy danych
+                                    roomRef.child("playerCount").addListenerForSingleValueEvent(object : ValueEventListener {
+                                        override fun onDataChange(playersSnapshot: DataSnapshot) {
+                                            val numberOfPlayers = playersSnapshot.getValue(Int::class.java) ?: 0
+                                            if (photoCount == numberOfPlayers) {
+                                                roomRef.child("state").setValue("playing4")
+                                                    .addOnSuccessListener {
+                                                        // Upewnij się, że obecna aktywność zostanie zakończona
+                                                        finish()
+                                                    }
+                                                    .addOnFailureListener { exception ->
+                                                        // Obsługa błędu zmiany stanu pokoju
+                                                        Toast.makeText(
+                                                            this@PhotoActivity,
+                                                            "Błąd zmiany stanu pokoju: ${exception.message}",
+                                                            Toast.LENGTH_SHORT
+                                                        ).show()
+                                                    }
+                                            }
+                                        }
+
+                                        override fun onCancelled(error: DatabaseError) {
+                                            // Obsługa błędu podczas odczytu liczby graczy
+                                            Toast.makeText(
+                                                this@PhotoActivity,
+                                                "Błąd odczytu liczby graczy: ${error.message}",
+                                                Toast.LENGTH_SHORT
+                                            ).show()
+                                        }
+                                    })
+                                } else {
+                                    // Obsługa błędu podczas zapisywania liczby dodanych zdjęć
+                                    Toast.makeText(
+                                        this@PhotoActivity,
+                                        "Błąd zapisu liczby dodanych zdjęć w bazie danych: ${task.exception?.message}",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                }
+                            }
+                    }
+
+                    override fun onCancelled(error: DatabaseError) {
+                        // Obsługa błędu podczas odczytu liczby dodanych zdjęć
+                        Toast.makeText(
+                            this@PhotoActivity,
+                            "Błąd odczytu liczby dodanych zdjęć z bazy danych: ${error.message}",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                })
+            }
+            .addOnFailureListener { exception ->
+                // Obsługa błędu podczas przesyłania obrazu do Firebase Storage
+                Toast.makeText(
+                    this@PhotoActivity,
+                    "Błąd przesyłania obrazu do Firebase Storage: ${exception.message}",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+    }
+
+
+
+
 
     override fun onBackPressed() {
         // Przenieś logikę opuszczania pokoju tutaj
