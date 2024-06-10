@@ -315,7 +315,7 @@ class PhotoActivity : AppCompatActivity() {
                     ).show()
                 }
         }
-    
+
 
 
 
