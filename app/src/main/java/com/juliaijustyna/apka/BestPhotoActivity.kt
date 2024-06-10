@@ -26,6 +26,7 @@ class BestPhotoActivity : AppCompatActivity() {
     private lateinit var photosRecyclerView: RecyclerView
     private lateinit var adapter: PhotoAdapter
     private val photosList = mutableListOf<Photo>()
+    private var voted = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -42,7 +43,7 @@ class BestPhotoActivity : AppCompatActivity() {
         storageRef = FirebaseStorage.getInstance().getReference("room_images/$roomId")
 
         photosRecyclerView = findViewById(R.id.photosRecyclerView)
-        photosRecyclerView.layoutManager = GridLayoutManager(this,2)
+        photosRecyclerView.layoutManager = LinearLayoutManager(this)
         adapter = PhotoAdapter(photosList, this::onPhotoVoted)
         photosRecyclerView.adapter = adapter
 
@@ -59,6 +60,23 @@ class BestPhotoActivity : AppCompatActivity() {
             }
         }.addOnFailureListener { exception ->
             Toast.makeText(this@BestPhotoActivity, "Błąd listowania zdjęć: ${exception.message}", Toast.LENGTH_SHORT).show()
+        }
+
+        // Sprawdź, czy użytkownik już głosował
+        val currentUser = FirebaseAuth.getInstance().currentUser
+        currentUser?.let {
+            roomRef.child("votes").child(it.uid).addListenerForSingleValueEvent(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    if (snapshot.exists()) {
+                        voted = true
+                        Toast.makeText(this@BestPhotoActivity, "Już oddałeś swój głos.", Toast.LENGTH_SHORT).show()
+                    }
+                }
+
+                override fun onCancelled(error: DatabaseError) {
+                    Toast.makeText(this@BestPhotoActivity, "Błąd sprawdzania głosu: ${error.message}", Toast.LENGTH_SHORT).show()
+                }
+            })
         }
 
         // Pobierz wyniki głosowania
@@ -83,11 +101,17 @@ class BestPhotoActivity : AppCompatActivity() {
     }
 
     private fun onPhotoVoted(photoId: String) {
+        if (voted) {
+            Toast.makeText(this, "Już oddałeś swój głos.", Toast.LENGTH_SHORT).show()
+            return
+        }
+
         val currentUser = FirebaseAuth.getInstance().currentUser
         currentUser?.let {
             roomRef.child("votes").child(it.uid).setValue(photoId)
                 .addOnSuccessListener {
                     Toast.makeText(this, "Głos został oddany", Toast.LENGTH_SHORT).show()
+                    voted = true
                     // Aktualizacja wyników głosowania po oddaniu głosu
                     updateVotingResults()
                 }
@@ -194,5 +218,3 @@ class BestPhotoActivity : AppCompatActivity() {
 
 
 data class Photo(val id: String, val url: String)
-
-
