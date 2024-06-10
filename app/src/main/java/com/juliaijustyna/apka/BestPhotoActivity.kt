@@ -8,6 +8,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.GridLayoutManager
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -41,7 +42,7 @@ class BestPhotoActivity : AppCompatActivity() {
         storageRef = FirebaseStorage.getInstance().getReference("room_images/$roomId")
 
         photosRecyclerView = findViewById(R.id.photosRecyclerView)
-        photosRecyclerView.layoutManager = LinearLayoutManager(this)
+        photosRecyclerView.layoutManager = GridLayoutManager(this,2)
         adapter = PhotoAdapter(photosList, this::onPhotoVoted)
         photosRecyclerView.adapter = adapter
 

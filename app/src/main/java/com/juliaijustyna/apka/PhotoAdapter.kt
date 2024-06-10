@@ -1,4 +1,5 @@
 package com.juliaijustyna.apka
+
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -16,7 +17,13 @@ class PhotoAdapter(private val photos: List<Photo>, private val voteCallback: (S
 
     override fun onBindViewHolder(holder: PhotoViewHolder, position: Int) {
         val photo = photos[position]
-        Picasso.get().load(photo.url).into(holder.photoImageView)
+        holder.photoImageView.post {
+            Picasso.get()
+                .load(photo.url)
+                .resize(holder.photoImageView.width, holder.photoImageView.height)
+                .centerCrop()
+                .into(holder.photoImageView)
+        }
         holder.voteButton.setOnClickListener {
             voteCallback(photo.id)
         }
