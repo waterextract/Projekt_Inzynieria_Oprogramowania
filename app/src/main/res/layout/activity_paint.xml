@@ -5,15 +5,18 @@
 
     <com.juliaijustyna.apka.DrawingView
         android:id="@+id/drawingView"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_width="400dp"
+        android:layout_height="400dp"
+        android:layout_centerVertical="true"
+        android:layout_centerHorizontal="true"
+        android:background="@drawable/lavender_border"/>
 
     <Button
         android:id="@+id/saveDrawing"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Save Drawing"
+        android:layout_below="@id/drawingView"
         android:layout_centerHorizontal="true"
-        android:layout_alignParentBottom="true"
         android:layout_marginBottom="16dp" />
 </RelativeLayout>

@@ -2,197 +2,128 @@ package com.juliaijustyna.apka
 
 import android.content.Intent
 import android.os.Bundle
-import android.widget.TextView
 import android.widget.Toast
-import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
-import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.DatabaseReference
-import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.database.ValueEventListener
-import org.checkerframework.checker.index.qual.EnsuresLTLengthOfIf
-import java.util.ArrayList
-import java.util.Collections
+import com.google.firebase.database.*
 
-    class AnswerActivity : AppCompatActivity() {
+class AnswerActivity : AppCompatActivity() {
 
-        private lateinit var answersTextView: TextView
-        private lateinit var roomId: String
-        private lateinit var roomRef: DatabaseReference
-        private lateinit var recyclerView: RecyclerView
-        private lateinit var adapter: AnswersAdapter
-        private val AnswerList = mutableListOf<Answer>()
+    private lateinit var roomId: String
+    private lateinit var roomRef: DatabaseReference
+    private lateinit var usersRef: DatabaseReference
+    private lateinit var recyclerView: RecyclerView
+    private lateinit var adapter: AnswersAdapter
+    private val answerList = mutableListOf<Answer>()
+    private val playerNames = mutableMapOf<String, String>()
 
-        override fun onCreate(savedInstanceState: Bundle?) {
-            super.onCreate(savedInstanceState)
-            enableEdgeToEdge()
-            setContentView(R.layout.activity_answer)
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_answer)
 
-            roomId = intent.getStringExtra("roomId") ?: ""
-            if (roomId.isEmpty()) {
-                Toast.makeText(this, "Nieprawidłowy identyfikator pokoju", Toast.LENGTH_SHORT)
-                    .show()
-                finish()
-                return
-            }
-
-            // Inicjalizuj referencję do pokoju w bazie danych Firebase
-            roomRef = FirebaseDatabase.getInstance().getReference("rooms").child(roomId)
-
-            ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
-                val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-                v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-                insets
-            }
-
-            // Inicjalizacja RecyclerView
-            recyclerView = findViewById(R.id.answersRecyclerView)
-            recyclerView.layoutManager = LinearLayoutManager(this)
-            adapter = AnswersAdapter(emptyList()) // Pusta lista odpowiedzi na początek
-
-            val swipegesture = object : SwipeGesture()
-            {
-                override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-
-                    when(direction) {
-                        ItemTouchHelper.LEFT -> {
-                            Toast.makeText(this@AnswerActivity, "LEWO", Toast.LENGTH_SHORT).show()
-                            viewHolder.adapterPosition
-                        }
-
-                        ItemTouchHelper.RIGHT -> {
-                            Toast.makeText(this@AnswerActivity, "PRAWO", Toast.LENGTH_SHORT).show()
-                            viewHolder.adapterPosition
-                        }
-                    }
-                }
-
-                override fun onMove(
-                    recyclerView: RecyclerView,
-                    viewHolder: RecyclerView.ViewHolder,
-                    target: RecyclerView.ViewHolder
-                ): Boolean {
-                    val from_pos = viewHolder.adapterPosition
-                    val to_pos = target.adapterPosition
-
-                    Collections.swap(AnswerList,from_pos,to_pos)
-                    adapter.notifyItemMoved(from_pos,to_pos)
-                    return false
-                }
-            }
-
-            val touchHelper = ItemTouchHelper(swipegesture)
-            touchHelper.attachToRecyclerView(recyclerView)
-
-            recyclerView.adapter = adapter
-
-            // Pobierz referencję do odpowiedzi graczy z bazy danych
-            val answersRef = roomRef.child("answers")
-
-            answersRef.addValueEventListener(object : ValueEventListener {
-                override fun onDataChange(snapshot: DataSnapshot) {
-                    val answersList = mutableListOf<Answer>()
-
-                    // Iteruj przez odpowiedzi graczy
-                    for (answerSnapshot in snapshot.children) {
-                        val playerId = answerSnapshot.key ?: ""
-                        val answerText = answerSnapshot.getValue(String::class.java) ?: ""
-                        val answer = Answer(playerId, answerText)
-                        answersList.add(answer)
-                    }
-
-                    // Aktualizuj dane w adapterze i wyświetl je w RecyclerView
-                    adapter.updateAnswers(answersList)
-                }
-
-                override fun onCancelled(error: DatabaseError) {
-                    // Obsłuż błąd pobierania danych
-                    Toast.makeText(
-                        this@AnswerActivity,
-                        "Błąd pobierania odpowiedzi: ${error.message}",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
-            })
+        roomId = intent.getStringExtra("roomId") ?: ""
+        if (roomId.isEmpty()) {
+            Toast.makeText(this, "Nieprawidłowy identyfikator pokoju", Toast.LENGTH_SHORT).show()
+            finish()
+            return
         }
 
-        override fun onBackPressed() {
-            // Przenieś logikę opuszczania pokoju tutaj
-            // Usuń bieżącego użytkownika z listy uczestników pokoju
-            val currentUser = FirebaseAuth.getInstance().currentUser
-            if (currentUser != null) {
-                val playerId = currentUser.uid
+        roomRef = FirebaseDatabase.getInstance().getReference("rooms").child(roomId)
+        usersRef = FirebaseDatabase.getInstance().getReference("Users")
 
-                // Usuń gracza z listy graczy pokoju
-                roomRef.child("players").child(playerId).removeValue()
-                    .addOnSuccessListener {
-                        Toast.makeText(this, "Pomyślnie opuszczono pokój", Toast.LENGTH_SHORT)
-                            .show()
+        recyclerView = findViewById(R.id.answersRecyclerView)
+        recyclerView.layoutManager = LinearLayoutManager(this)
+        adapter = AnswersAdapter(answerList, playerNames)
+        recyclerView.adapter = adapter
 
-                        // Dodatkowo, sprawdź, czy liczba graczy w pokoju wynosi zero
-                        roomRef.child("players")
-                            .addListenerForSingleValueEvent(object : ValueEventListener {
-                                override fun onDataChange(snapshot: DataSnapshot) {
-                                    if (!snapshot.exists()) { // Jeśli liczba graczy wynosi zero
-                                        // Ustaw stan pokoju na "empty"
-                                        roomRef.child("state").setValue("empty")
-                                            .addOnSuccessListener {
-                                                // Usuń pokój z bazy danych
-                                                roomRef.removeValue()
-                                                    .addOnSuccessListener {
-                                                        Toast.makeText(
-                                                            this@AnswerActivity,
-                                                            "Pokój został usunięty",
-                                                            Toast.LENGTH_SHORT
-                                                        ).show()
-                                                        // Przenieś gracza na stronę główną
-                                                        val intent = Intent(
-                                                            this@AnswerActivity,
-                                                            HomeFragment::class.java
-                                                        )
-                                                        startActivity(intent)
-                                                        finish() // Zakończ bieżącą aktywność, aby nie można było wrócić do pokoju za pomocą przycisku "wstecz"
-                                                    }
-                                                    .addOnFailureListener {
-                                                        // Obsługa błędu usuwania pokoju
-                                                    }
-                                            }
-                                            .addOnFailureListener {
-                                                // Obsługa błędu ustawiania stanu pokoju
-                                            }
-                                    } else {
-                                        // Przenieś gracza na stronę główną
-                                        val intent =
-                                            Intent(this@AnswerActivity, HomeFragment::class.java)
-                                        startActivity(intent)
-                                        finish() // Zakończ bieżącą aktywność, aby nie można było wrócić do pokoju za pomocą przycisku "wstecz"
-                                    }
-                                }
+        loadPlayerNames()
+    }
 
-                                override fun onCancelled(error: DatabaseError) {
-                                    Toast.makeText(
-                                        this@AnswerActivity,
-                                        "Błąd pobierania danych: ${error.message}",
-                                        Toast.LENGTH_SHORT
-                                    ).show()
-                                }
-                            })
-                    }
-                    .addOnFailureListener {
-                        Toast.makeText(
-                            this,
-                            "Błąd podczas opuszczania pokoju: ${it.message}",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    }
+    private fun loadPlayerNames() {
+        roomRef.child("players").addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                playerNames.clear()
+                val playerIds = snapshot.children.map { it.key ?: "" }
+                for (playerId in playerIds) {
+                    usersRef.child(playerId).child("name").addListenerForSingleValueEvent(object : ValueEventListener {
+                        override fun onDataChange(nameSnapshot: DataSnapshot) {
+                            val playerName = nameSnapshot.getValue(String::class.java) ?: ""
+                            playerNames[playerId] = playerName
+                            if (playerNames.size == playerIds.size) {
+                                fetchAnswers()
+                            }
+                        }
+
+                        override fun onCancelled(error: DatabaseError) {
+                            Toast.makeText(this@AnswerActivity, "Błąd pobierania nazw graczy: ${error.message}", Toast.LENGTH_SHORT).show()
+                        }
+                    })
+                }
             }
 
+            override fun onCancelled(error: DatabaseError) {
+                Toast.makeText(this@AnswerActivity, "Błąd pobierania graczy: ${error.message}", Toast.LENGTH_SHORT).show()
+            }
+        })
+    }
+
+    private fun fetchAnswers() {
+        val answersRef = roomRef.child("answers")
+        answersRef.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val answersList = mutableListOf<Answer>()
+                for (answerSnapshot in snapshot.children) {
+                    val playerId = answerSnapshot.key ?: ""
+                    val answerText = answerSnapshot.getValue(String::class.java) ?: ""
+                    val playerName = playerNames[playerId] ?: "Unknown"
+                    val answer = Answer(playerId, playerName, answerText)
+                    answersList.add(answer)
+                }
+                // Aktualizujemy RecyclerView za pomocą nowych odpowiedzi
+                adapter = AnswersAdapter(answersList, playerNames)
+                recyclerView.adapter = adapter
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                Toast.makeText(this@AnswerActivity, "Błąd pobierania odpowiedzi: ${error.message}", Toast.LENGTH_SHORT).show()
+            }
+        })
+    }
+
+    override fun onBackPressed() {
+        val currentUser = FirebaseAuth.getInstance().currentUser
+        if (currentUser != null) {
+            val playerId = currentUser.uid
+            roomRef.child("players").child(playerId).removeValue()
+                .addOnSuccessListener {
+                    roomRef.child("players").addListenerForSingleValueEvent(object : ValueEventListener {
+                        override fun onDataChange(snapshot: DataSnapshot) {
+                            if (!snapshot.exists()) {
+                                roomRef.child("state").setValue("empty")
+                                    .addOnSuccessListener {
+                                        roomRef.removeValue()
+                                            .addOnSuccessListener {
+                                                Toast.makeText(this@AnswerActivity, "Pokój został usunięty", Toast.LENGTH_SHORT).show()
+                                                startActivity(Intent(this@AnswerActivity, HomeFragment::class.java))
+                                                finish()
+                                            }
+                                    }
+                            } else {
+                                startActivity(Intent(this@AnswerActivity, HomeFragment::class.java))
+                                finish()
+                            }
+                        }
+
+                        override fun onCancelled(error: DatabaseError) {
+                            Toast.makeText(this@AnswerActivity, "Błąd pobierania danych: ${error.message}", Toast.LENGTH_SHORT).show()
+                        }
+                    })
+                }
+                .addOnFailureListener {
+                    Toast.makeText(this, "Błąd podczas opuszczania pokoju: ${it.message}", Toast.LENGTH_SHORT).show()
+                }
         }
     }
+}
