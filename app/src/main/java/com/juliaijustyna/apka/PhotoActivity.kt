@@ -22,11 +22,9 @@ import androidx.activity.result.contract.ActivityResultContracts
 import com.squareup.picasso.Picasso
 import android.Manifest
 import android.graphics.Bitmap
-import android.util.Base64
 import java.io.ByteArrayOutputStream
-import android.graphics.BitmapFactory
-import android.media.ExifInterface
-import java.io.IOException
+import android.graphics.Matrix
+
 
 class PhotoActivity : AppCompatActivity() {
 
@@ -206,120 +204,116 @@ class PhotoActivity : AppCompatActivity() {
         if (result.resultCode == Activity.RESULT_OK) {
             // Sprawdź, czy dane nie są puste
             result.data?.extras?.get("data")?.let { imageBitmap ->
-                savePhotoToDatabase(imageBitmap as Bitmap)
+                val fixedBitmap = rotateImageIfRequired(imageBitmap as Bitmap)
+                savePhotoToDatabase(fixedBitmap)
             }
         }
     }
 
-
+    private fun rotateImageIfRequired(img: Bitmap): Bitmap {
+        val matrix = Matrix()
+        matrix.postRotate(90f) // Obróć o 90 stopni w prawo
+        return Bitmap.createBitmap(img, 0, 0, img.width, img.height, matrix, true)
+    }
 
     private fun savePhotoToDatabase(imageBitmap: Bitmap) {
         val storageRef = FirebaseStorage.getInstance().getReference("room_images/$roomId")
 
+        // Konwertuj obraz na tablicę bajtów
+        val imageByteArray = ByteArrayOutputStream()
+        imageBitmap.compress(Bitmap.CompressFormat.JPEG, 100, imageByteArray)
+        val imageData = imageByteArray.toByteArray()
 
+        // Utwórz nazwę pliku
+        val fileName = "photo_${System.currentTimeMillis()}.jpg"
+        val imageRef = storageRef.child(fileName)
 
-            // Konwertuj obraz na tablicę bajtów
-            val imageByteArray = ByteArrayOutputStream()
-            imageBitmap.compress(Bitmap.CompressFormat.JPEG, 100, imageByteArray)
-            val imageData = imageByteArray.toByteArray()
+        // Prześlij dane obrazu do Firebase Storage
+        imageRef.putBytes(imageData)
+            .addOnSuccessListener {
+                // Pobierz liczbę dodanych zdjęć z bazy danych
+                roomRef.child("photoCount")
+                    .addListenerForSingleValueEvent(object : ValueEventListener {
+                        override fun onDataChange(snapshot: DataSnapshot) {
+                            var photoCount = snapshot.getValue(Int::class.java) ?: 0
+                            photoCount++
 
+                            // Zapisz liczbę dodanych zdjęć w bazie danych
+                            roomRef.child("photoCount").setValue(photoCount)
+                                .addOnCompleteListener { task ->
+                                    if (task.isSuccessful) {
+                                        // Powiadomienie użytkownika o pomyślnym zapisaniu liczby dodanych zdjęć
+                                        Toast.makeText(
+                                            this@PhotoActivity,
+                                            "Pomyślnie zapisano zdjęcie w bazie danych",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
 
-            // Utwórz nazwę pliku
-            val fileName = "photo_${System.currentTimeMillis()}.jpg"
-            val imageRef = storageRef.child(fileName)
-
-            // Prześlij dane obrazu do Firebase Storage
-            imageRef.putBytes(imageData)
-                .addOnSuccessListener {
-                    // Pobierz liczbę dodanych zdjęć z bazy danych
-                    roomRef.child("photoCount")
-                        .addListenerForSingleValueEvent(object : ValueEventListener {
-                            override fun onDataChange(snapshot: DataSnapshot) {
-                                var photoCount = snapshot.getValue(Int::class.java) ?: 0
-                                photoCount++
-
-                                // Zapisz liczbę dodanych zdjęć w bazie danych
-                                roomRef.child("photoCount").setValue(photoCount)
-                                    .addOnCompleteListener { task ->
-                                        if (task.isSuccessful) {
-                                            // Powiadomienie użytkownika o pomyślnym zapisaniu liczby dodanych zdjęć
-                                            Toast.makeText(
-                                                this@PhotoActivity,
-                                                "Pomyślnie zapisano zdjęcie w bazie danych",
-                                                Toast.LENGTH_SHORT
-                                            ).show()
-
-                                            // Pobierz liczbę graczy z bazy danych
-                                            roomRef.child("playerCount")
-                                                .addListenerForSingleValueEvent(object :
-                                                    ValueEventListener {
-                                                    override fun onDataChange(playersSnapshot: DataSnapshot) {
-                                                        val numberOfPlayers =
-                                                            playersSnapshot.getValue(Int::class.java)
-                                                                ?: 0
-                                                        if (photoCount == numberOfPlayers) {
-                                                            roomRef.child("state")
-                                                                .setValue("playing4")
-                                                                .addOnSuccessListener {
-                                                                    // Upewnij się, że obecna aktywność zostanie zakończona
-                                                                    finish()
-                                                                }
-                                                                .addOnFailureListener { exception ->
-                                                                    // Obsługa błędu zmiany stanu pokoju
-                                                                    Toast.makeText(
-                                                                        this@PhotoActivity,
-                                                                        "Błąd zmiany stanu pokoju: ${exception.message}",
-                                                                        Toast.LENGTH_SHORT
-                                                                    ).show()
-                                                                }
-                                                        }
+                                        // Pobierz liczbę graczy z bazy danych
+                                        roomRef.child("playerCount")
+                                            .addListenerForSingleValueEvent(object :
+                                                ValueEventListener {
+                                                override fun onDataChange(playersSnapshot: DataSnapshot) {
+                                                    val numberOfPlayers =
+                                                        playersSnapshot.getValue(Int::class.java)
+                                                            ?: 0
+                                                    if (photoCount == numberOfPlayers) {
+                                                        roomRef.child("state")
+                                                            .setValue("playing4")
+                                                            .addOnSuccessListener {
+                                                                // Upewnij się, że obecna aktywność zostanie zakończona
+                                                                finish()
+                                                            }
+                                                            .addOnFailureListener { exception ->
+                                                                // Obsługa błędu zmiany stanu pokoju
+                                                                Toast.makeText(
+                                                                    this@PhotoActivity,
+                                                                    "Błąd zmiany stanu pokoju: ${exception.message}",
+                                                                    Toast.LENGTH_SHORT
+                                                                ).show()
+                                                            }
                                                     }
+                                                }
 
-
-                                                    override fun onCancelled(error: DatabaseError) {
-                                                        // Obsługa błędu podczas odczytu liczby graczy
-                                                        Toast.makeText(
-                                                            this@PhotoActivity,
-                                                            "Błąd odczytu liczby graczy: ${error.message}",
-                                                            Toast.LENGTH_SHORT
-                                                        ).show()
-                                                    }
-                                                })
-                                        } else {
-                                            // Obsługa błędu podczas zapisywania liczby dodanych zdjęć
-                                            Toast.makeText(
-                                                this@PhotoActivity,
-                                                "Błąd zapisu liczby dodanych zdjęć w bazie danych: ${task.exception?.message}",
-                                                Toast.LENGTH_SHORT
-                                            ).show()
-                                        }
+                                                override fun onCancelled(error: DatabaseError) {
+                                                    // Obsługa błędu podczas odczytu liczby graczy
+                                                    Toast.makeText(
+                                                        this@PhotoActivity,
+                                                        "Błąd odczytu liczby graczy: ${error.message}",
+                                                        Toast.LENGTH_SHORT
+                                                    ).show()
+                                                }
+                                            })
+                                    } else {
+                                        // Obsługa błędu podczas zapisywania liczby dodanych zdjęć
+                                        Toast.makeText(
+                                            this@PhotoActivity,
+                                            "Błąd zapisu liczby dodanych zdjęć w bazie danych: ${task.exception?.message}",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
                                     }
-                            }
+                                }
+                        }
 
-                            override fun onCancelled(error: DatabaseError) {
-                                // Obsługa błędu podczas odczytu liczby dodanych zdjęć
-                                Toast.makeText(
-                                    this@PhotoActivity,
-                                    "Błąd odczytu liczby dodanych zdjęć z bazy danych: ${error.message}",
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                            }
-                        })
-                }
-                .addOnFailureListener { exception ->
-                    // Obsługa błędu podczas przesyłania obrazu do Firebase Storage
-                    Toast.makeText(
-                        this@PhotoActivity,
-                        "Błąd przesyłania obrazu do Firebase Storage: ${exception.message}",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
-        }
+                        override fun onCancelled(error: DatabaseError) {
 
+                            Toast.makeText(
+                                this@PhotoActivity,
+                                "Błąd odczytu liczby dodanych zdjęć z bazy danych: ${error.message}",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                    })
+            }
+            .addOnFailureListener { exception ->
 
-
-
-
+                Toast.makeText(
+                    this@PhotoActivity,
+                    "Błąd przesyłania obrazu do Firebase Storage: ${exception.message}",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+    }
 
     override fun onBackPressed() {
         // Przenieś logikę opuszczania pokoju tutaj
